@@ -1,0 +1,20 @@
+// RateThey database schema.
+// Docs: https://pris.ly/d/prisma-schema
+//
+// Prisma 7 uses the `prisma-client` generator + a driver adapter (see
+// src/server/db/prisma.ts). The connection URL is configured in prisma.config.ts.
+//
+// Domain models are added per phase:
+//   - Phase 1: Profile (linked to Supabase auth.users)
+//   - Phase 3: Rating, Watchlist
+//   - Phase 4: Follow, activity
+// Run `npm run db:migrate` after configuring your Supabase connection in .env.
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}

@@ -1,36 +1,81 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# RateThey
 
-## Getting Started
+Koyu temalı, gelişmiş öneri sistemli bir film / dizi / kitap puanlama platformu.
+Letterboxd benzeri, ama daha kapsamlı algoritmalar ve kişiselleştirilmiş öneriler hedefler.
+Önce web, ardından (Expo ile) mobil.
 
-First, run the development server:
+## Teknoloji yığını
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+- **Next.js 16** (App Router, React 19, TypeScript strict) — `npm`
+- **Tailwind CSS v4** + shadcn/ui uyumlu tasarım sistemi (koyu tema) + Framer Motion (`motion`)
+- **Supabase** (yönetilen PostgreSQL + Auth + Storage)
+- **Prisma 7** (`prisma-client` generator + `@prisma/adapter-pg` driver adapter)
+- **Zod 4** + `@t3-oss/env-nextjs` ile tip güvenli env doğrulama
+- ESLint + Prettier + Husky + lint-staged
+
+## Mimari
+
+Tek yönlü katmanlı akış: **UI → service → repository → db**. İş mantığı framework'ten
+bağımsız tutulur, böylece ileride mobil/ayrı servislere taşınabilir.
+
+```
+src/
+  app/          Rotalar (UI + route handlers)
+  features/     Özellik modülleri (auth, movies, ratings, profile, marketing)
+  server/       Framework-agnostik domain (db, services, repositories)
+  lib/          supabase (browser/server), env, utils
+  components/   Tasarım sistemi (ui) + ortak bileşenler
+  generated/    Prisma client (üretilen, git'e dahil değil)
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Kurulum
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+npm install
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### Supabase'i bağla
 
-## Learn More
+1. [supabase.com](https://supabase.com) üzerinde ücretsiz bir proje oluştur.
+2. `.env.example` dosyasını `.env` olarak kopyala ve değerleri doldur:
+   - **Project Settings → API**: `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`,
+     `SUPABASE_SERVICE_ROLE_KEY`
+   - **Project Settings → Database → Connection string**: pooled (6543) → `DATABASE_URL`,
+     direct (5432) → `DIRECT_URL`
+3. Şemayı veritabanına uygula:
 
-To learn more about Next.js, take a look at the following resources:
+```bash
+npm run db:migrate
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### Geliştirme
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```bash
+npm run dev          # http://localhost:3000
+```
 
-## Deploy on Vercel
+Sağlık kontrolü: [http://localhost:3000/api/health](http://localhost:3000/api/health)
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Komutlar
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+| Komut                  | Açıklama                                  |
+| ---------------------- | ----------------------------------------- |
+| `npm run dev`          | Geliştirme sunucusu (Turbopack)           |
+| `npm run build`        | Production build                          |
+| `npm run typecheck`    | TypeScript tip kontrolü                   |
+| `npm run lint`         | ESLint                                    |
+| `npm run format`       | Prettier ile biçimlendir                  |
+| `npm run db:migrate`   | Prisma migration (geliştirme)             |
+| `npm run db:studio`    | Prisma Studio                             |
+
+## Yol haritası (fazlar)
+
+0. **Temel & İskelet** ✅ — proje kurulumu, tasarım sistemi, Supabase/Prisma scaffold
+1. Kimlik doğrulama & kullanıcı (Supabase Auth)
+2. Film verisi & TMDB entegrasyonu
+3. Puanlama çekirdeği
+4. Profil & sosyal
+5. Öneri sistemi v1 (içerik tabanlı, pgvector)
+6. Öneri sistemi v2 & polyglot servis
+7. Diğer dikeyler (dizi, kitap)
+8. Cila, test, performans, deploy → ardından mobil (Expo)
