@@ -1,6 +1,5 @@
 # RateThey
 
-Koyu temalı, gelişmiş öneri sistemli bir film / dizi / kitap puanlama platformu.
 Letterboxd benzeri, ama daha kapsamlı algoritmalar ve kişiselleştirilmiş öneriler hedefler.
 Önce web, ardından (Expo ile) mobil.
 
